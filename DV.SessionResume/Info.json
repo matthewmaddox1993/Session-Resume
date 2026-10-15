@@ -7,6 +7,6 @@
   "AssemblyName": "DV.SessionResume.dll",
   "EntryMethod": "SessionResume.Main.Load",
   "MultiplayerCompatibility": "Unspecified",
-  "Repository": "https://raw.githubusercontent.com/matthewmaddox1993/dv-hud/refs/heads/master/resources/repository.json"
+  "Repository": "https://raw.githubusercontent.com/matthewmaddox1993/Session-Resume/refs/heads/main/DV.SessionResume/repo.json"
 
 }
