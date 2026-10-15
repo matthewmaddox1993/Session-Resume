@@ -1,0 +1,10 @@
+{
+  "Id": "SessionResume",
+  "DisplayName": "Session Resume",
+  "Author": "Matt M.",
+  "Version": "1.0.0",
+  "ManagerVersion": "0.27.5",
+  "AssemblyName": "DV.SessionResume.dll",
+  "EntryMethod": "SessionResume.Main.Load",
+  "MultiplayerCompatibility": "Unspecified"
+}

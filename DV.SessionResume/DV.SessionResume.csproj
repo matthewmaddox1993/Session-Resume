@@ -1,0 +1,88 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>7.3</LangVersion>
+    <AssemblyName>DV.SessionResume</AssemblyName>
+    <RootNamespace>SessionResume</RootNamespace>
+    <InfoJsonPath>$(MSBuildProjectDirectory)\Info.json</InfoJsonPath>
+    <ReadmePath>$(MSBuildProjectDirectory)\README.md</ReadmePath>
+    <InfoVersion>$([System.Text.RegularExpressions.Regex]::Match($([System.IO.File]::ReadAllText('$(InfoJsonPath)')), '&quot;Version&quot;\s*:\s*&quot;([^&quot;]+)&quot;').Groups[1].Value)</InfoVersion>
+    <Version>$(InfoVersion)</Version>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>1591;1701;1702</NoWarn>
+    <ModStageDir>$(BaseIntermediateOutputPath)package\$(Configuration)\SessionResume</ModStageDir>
+    <ArtifactsDir>$(MSBuildProjectDirectory)\..\artifacts</ArtifactsDir>
+  </PropertyGroup>
+
+  <Target Name="ValidateDerailValleyPath" BeforeTargets="ResolveReferences">
+    <Error Condition="'$(DVManagedDir)' == '' Or !Exists('$(DVManagedDir)\Assembly-CSharp.dll')"
+           Text="Derail Valley was not found. Set DERAIL_VALLEY_DIR to the folder containing DerailValley.exe." />
+  </Target>
+
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp" HintPath="$(DVManagedDir)\Assembly-CSharp.dll" Private="false" />
+    <Reference Include="0Harmony" HintPath="$(DVManagedDir)\UnityModManager\0Harmony.dll" Private="false" />
+    <Reference Include="DV.Common" HintPath="$(DVManagedDir)\DV.Common.dll" Private="false" />
+    <Reference Include="DV.BuildInfo" HintPath="$(DVManagedDir)\DV.BuildInfo.dll" Private="false" />
+    <Reference Include="DV.CharacterController" HintPath="$(DVManagedDir)\DV.CharacterController.dll" Private="false" />
+    <Reference Include="DV.ThingTypes" HintPath="$(DVManagedDir)\DV.ThingTypes.dll" Private="false" />
+    <Reference Include="DV.UI" HintPath="$(DVManagedDir)\DV.UI.dll" Private="false" />
+    <Reference Include="DV.UIFramework" HintPath="$(DVManagedDir)\DV.UIFramework.dll" Private="false" />
+    <Reference Include="DV.Utils" HintPath="$(DVManagedDir)\DV.Utils.dll" Private="false" />
+    <Reference Include="Newtonsoft.Json" HintPath="$(DVManagedDir)\Newtonsoft.Json.dll" Private="false" />
+    <Reference Include="UnityEngine" HintPath="$(DVManagedDir)\UnityEngine.dll" Private="false" />
+    <Reference Include="UnityEngine.CoreModule" HintPath="$(DVManagedDir)\UnityEngine.CoreModule.dll" Private="false" />
+    <Reference Include="UnityEngine.IMGUIModule" HintPath="$(DVManagedDir)\UnityEngine.IMGUIModule.dll" Private="false" />
+    <Reference Include="UnityEngine.InputLegacyModule" HintPath="$(DVManagedDir)\UnityEngine.InputLegacyModule.dll" Private="false" />
+    <Reference Include="UnityEngine.TextRenderingModule" HintPath="$(DVManagedDir)\UnityEngine.TextRenderingModule.dll" Private="false" />
+    <Reference Include="UnityEngine.UIModule" HintPath="$(DVManagedDir)\UnityEngine.UIModule.dll" Private="false" />
+    <Reference Include="UnityEngine.UI" HintPath="$(DVManagedDir)\UnityEngine.UI.dll" Private="false" />
+    <Reference Include="Unity.TextMeshPro" HintPath="$(DVManagedDir)\Unity.TextMeshPro.dll" Private="false" />
+    <Reference Include="UnityModManager" HintPath="$(DVManagedDir)\UnityModManager\UnityModManager.dll" Private="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Info.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="README.md" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <Target Name="ReadModMetadata">
+    <Error Condition="!Exists('$(InfoJsonPath)')" Text="Required mod metadata file was not found: $(InfoJsonPath)" />
+    <ReadLinesFromFile File="$(InfoJsonPath)">
+      <Output TaskParameter="Lines" ItemName="_InfoJsonLines" />
+    </ReadLinesFromFile>
+    <PropertyGroup>
+      <_InfoJsonText>@(_InfoJsonLines, ' ')</_InfoJsonText>
+      <ModId>$([System.Text.RegularExpressions.Regex]::Match('$(_InfoJsonText)', '&quot;Id&quot;\s*:\s*&quot;([^&quot;]+)&quot;').Groups[1].Value)</ModId>
+      <ModVersion>$([System.Text.RegularExpressions.Regex]::Match('$(_InfoJsonText)', '&quot;Version&quot;\s*:\s*&quot;([^&quot;]+)&quot;').Groups[1].Value)</ModVersion>
+      <ModAssemblyName>$([System.Text.RegularExpressions.Regex]::Match('$(_InfoJsonText)', '&quot;AssemblyName&quot;\s*:\s*&quot;([^&quot;]+)&quot;').Groups[1].Value)</ModAssemblyName>
+    </PropertyGroup>
+    <Error Condition="'$(ModId)' == ''" Text="Info.json does not contain a valid Id." />
+    <Error Condition="'$(ModVersion)' == ''" Text="Info.json does not contain a valid Version." />
+    <Error Condition="'$(ModVersion)' != '$(Version)'"
+           Text="The build version '$(Version)' does not match Info.json version '$(ModVersion)'." />
+    <Error Condition="'$(ModAssemblyName)' == ''" Text="Info.json does not contain a valid AssemblyName." />
+    <Error Condition="'$(ModAssemblyName)' != '$(TargetFileName)'"
+           Text="Info.json AssemblyName '$(ModAssemblyName)' does not match the built assembly '$(TargetFileName)'." />
+  </Target>
+
+  <Target Name="PackageMod" AfterTargets="Build" DependsOnTargets="ReadModMetadata">
+    <PropertyGroup>
+      <PackageRoot>$([System.IO.Path]::GetDirectoryName('$(ModStageDir)'))</PackageRoot>
+      <PackageZip>$(ArtifactsDir)\$(ModId)-v$(ModVersion)-$(Configuration).zip</PackageZip>
+    </PropertyGroup>
+    <ItemGroup>
+      <_RequiredPackageFiles Include="$(TargetPath)" />
+      <_RequiredPackageFiles Include="$(InfoJsonPath)" />
+      <_RequiredPackageFiles Include="$(ReadmePath)" />
+    </ItemGroup>
+    <Error Condition="!Exists('$(ReadmePath)')" Text="Required mod documentation file was not found: $(ReadmePath)" />
+    <RemoveDir Directories="$(ModStageDir)" Condition="Exists('$(ModStageDir)')" />
+    <MakeDir Directories="$(ModStageDir);$(ArtifactsDir)" />
+    <Copy SourceFiles="@(_RequiredPackageFiles)" DestinationFolder="$(ModStageDir)" />
+    <ZipDirectory SourceDirectory="$(PackageRoot)"
+                  DestinationFile="$(PackageZip)" Overwrite="true" />
+    <Message Importance="high" Text="Created $(ModId) v$(ModVersion) package: $(PackageZip)" />
+  </Target>
+</Project>
