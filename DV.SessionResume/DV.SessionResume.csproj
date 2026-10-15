@@ -5,8 +5,8 @@
     <AssemblyName>DV.SessionResume</AssemblyName>
     <RootNamespace>SessionResume</RootNamespace>
     <InfoJsonPath>$(MSBuildProjectDirectory)\Info.json</InfoJsonPath>
-    <ReadmePath>$(MSBuildProjectDirectory)\README.md</ReadmePath>
-    <ChangelogPath>$(MSBuildProjectDirectory)\CHANGELOG.md</ChangelogPath>
+    <ReadmePath>$(MSBuildProjectDirectory)\..\README.md</ReadmePath>
+    <ChangelogPath>$(MSBuildProjectDirectory)\..\CHANGELOG.md</ChangelogPath>
     <InfoVersion>$([System.Text.RegularExpressions.Regex]::Match($([System.IO.File]::ReadAllText('$(InfoJsonPath)')), '&quot;Version&quot;\s*:\s*&quot;([^&quot;]+)&quot;').Groups[1].Value)</InfoVersion>
     <Version>$(InfoVersion)</Version>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
@@ -45,8 +45,8 @@
 
   <ItemGroup>
     <None Include="Info.json" CopyToOutputDirectory="PreserveNewest" />
-    <None Include="README.md" CopyToOutputDirectory="PreserveNewest" />
-    <None Include="CHANGELOG.md" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="$(ReadmePath)" Link="README.md" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="$(ChangelogPath)" Link="CHANGELOG.md" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <Target Name="ReadModMetadata">
