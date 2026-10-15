@@ -51,4 +51,6 @@ SessionResume-v<VERSION>-<CONFIGURATION>.zip
     └── README.md
 ```
 
+Each package also includes `CHANGELOG.md` with the public release history.
+
 `Info.json` is the single source of truth for the mod ID, version, and assembly filename.

@@ -6,6 +6,7 @@
     <RootNamespace>SessionResume</RootNamespace>
     <InfoJsonPath>$(MSBuildProjectDirectory)\Info.json</InfoJsonPath>
     <ReadmePath>$(MSBuildProjectDirectory)\README.md</ReadmePath>
+    <ChangelogPath>$(MSBuildProjectDirectory)\CHANGELOG.md</ChangelogPath>
     <InfoVersion>$([System.Text.RegularExpressions.Regex]::Match($([System.IO.File]::ReadAllText('$(InfoJsonPath)')), '&quot;Version&quot;\s*:\s*&quot;([^&quot;]+)&quot;').Groups[1].Value)</InfoVersion>
     <Version>$(InfoVersion)</Version>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
@@ -45,6 +46,7 @@
   <ItemGroup>
     <None Include="Info.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="README.md" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="CHANGELOG.md" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <Target Name="ReadModMetadata">
@@ -76,8 +78,10 @@
       <_RequiredPackageFiles Include="$(TargetPath)" />
       <_RequiredPackageFiles Include="$(InfoJsonPath)" />
       <_RequiredPackageFiles Include="$(ReadmePath)" />
+      <_RequiredPackageFiles Include="$(ChangelogPath)" />
     </ItemGroup>
     <Error Condition="!Exists('$(ReadmePath)')" Text="Required mod documentation file was not found: $(ReadmePath)" />
+    <Error Condition="!Exists('$(ChangelogPath)')" Text="Required changelog file was not found: $(ChangelogPath)" />
     <RemoveDir Directories="$(ModStageDir)" Condition="Exists('$(ModStageDir)')" />
     <MakeDir Directories="$(ModStageDir);$(ArtifactsDir)" />
     <Copy SourceFiles="@(_RequiredPackageFiles)" DestinationFolder="$(ModStageDir)" />
